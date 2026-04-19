@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model GoogleAccount {
+  id                   String     @id @default(cuid())
+  googleUserId         String     @unique
+  email                String
+  encryptedRefreshToken String
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  jobs                 ApplyJob[]
+}
+
+model ApplyJob {
+  id              String       @id @default(cuid())
+  accountId       String
+  mode            String
+  status          String       @default("pending")
+  ruleInputJson   String
+  summaryJson     String?
+  error           String?
+  startedAt       DateTime     @default(now())
+  finishedAt      DateTime?
+  account         GoogleAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  dayChanges      DayChange[]
+  snapshotDays    SnapshotDay[]
+}
+
+model DayChange {
+  id          String   @id @default(cuid())
+  jobId       String
+  date        String
+  oldSteps    Int
+  newSteps    Int
+  delta       Int
+  createdAt   DateTime @default(now())
+  job         ApplyJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model SnapshotDay {
+  id          String   @id @default(cuid())
+  jobId       String
+  date        String
+  steps       Int
+  createdAt   DateTime @default(now())
+  job         ApplyJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
