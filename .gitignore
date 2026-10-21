@@ -45,3 +45,6 @@ Thumbs.db
 
 # Testing
 coverage/
+
+# local sqlite
+*.db
